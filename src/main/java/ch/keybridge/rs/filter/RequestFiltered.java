@@ -16,7 +16,7 @@
  * suppliers, if any. The intellectual and technical concepts contained herein
  * are proprietary.
  */
-package ch.keybridge.lib.rs.filter;
+package ch.keybridge.rs.filter;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;

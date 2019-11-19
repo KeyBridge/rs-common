@@ -11,7 +11,7 @@
  * A copy of these agreements may be obtained by sending a request
  * via email to info@caufield.org.
  */
-package ch.keybridge.lib.rs.filter.impl;
+package ch.keybridge.rs.filter.impl;
 
 import java.io.*;
 import java.util.logging.Logger;
@@ -31,7 +31,12 @@ import javax.ws.rs.container.ContainerRequestContext;
  */
 public abstract class AbstractContainerFilter {
 
-  private static final Logger LOG = Logger.getLogger(AbstractContainerFilter.class.getName());
+  @SuppressWarnings("NonConstantLogger")
+  protected final Logger LOG;
+
+  public AbstractContainerFilter() {
+    LOG = Logger.getLogger(this.getClass().getName());
+  }
 
   /**
    * Get the HTTP request entity body.

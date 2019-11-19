@@ -16,9 +16,9 @@
  * suppliers, if any. The intellectual and technical concepts contained herein
  * are proprietary.
  */
-package ch.keybridge.lib.rs.filter.impl;
+package ch.keybridge.rs.filter.impl;
 
-import ch.keybridge.lib.rs.filter.MessageAddressing;
+import ch.keybridge.rs.filter.MessageAddressing;
 import java.io.IOException;
 import java.util.UUID;
 import java.util.logging.Logger;
@@ -31,18 +31,18 @@ import javax.ws.rs.container.ContainerResponseFilter;
 import javax.ws.rs.ext.Provider;
 
 /**
- * Name binding annotation to bind a provider using the @MessageAddressing
- * annotation, which will enable the Web Service Addressing filter.
+ * RS-Addressing protocol implementation. Reads and writes message headers.
  * <p>
- * Web Services Addressing provides transport-neutral mechanisms to address Web
- * services and messages. Web Services Addressing 1.0 - Core (WS-Addressing)
- * defines two constructs, message addressing properties and endpoint
- * references, that normalize the information typically provided by transport
- * protocols and messaging systems in a way that is independent of any
- * particular transport or messaging system.
+ * Provides a RESTful analog to the SOAP WS-Addressing protocol. Web Services
+ * Addressing provides transport-neutral mechanisms to address Web services and
+ * messages. Web Services Addressing 1.0 - Core (WS-Addressing) defines two
+ * constructs, message addressing properties and endpoint references, that
+ * normalize the information typically provided by transport protocols and
+ * messaging systems in a way that is independent of any particular transport or
+ * messaging system.
  * <p>
- * Implementations of this filter MUST support, at minimum, the MessageId and
- * RelatesTo fields.
+ * Implementations of this filter MUST support, at minimum, the `MessageId` and
+ * `RelatesTo` fields.
  * <p>
  * Note: IRI is an Internationalized Resource Identifiers (IRIs) defined in
  * RFC3987, which is just a URI (ASCII) but encoded using UTF-8.
@@ -57,7 +57,7 @@ import javax.ws.rs.ext.Provider;
  */
 @Provider
 @MessageAddressing
-@Priority(Priorities.HEADER_DECORATOR)  // Header decorator filter/interceptor
+@Priority(Priorities.HEADER_DECORATOR) // Header decorator filter/interceptor
 public class MessageAddressingFilter implements ContainerRequestFilter, ContainerResponseFilter {
 
   private static final Logger LOG = Logger.getLogger(MessageAddressingFilter.class.getName());
@@ -110,7 +110,8 @@ public class MessageAddressingFilter implements ContainerRequestFilter, Containe
   /**
    * {@inheritDoc}
    * <p>
-   * Add Web Services Addressing response headers.
+   * Always add a new MESSAGE_ID header. If an inbound MESSAGE_ID was provided,
+   * then echo that value in the RELATES_TO header.
    */
   @Override
   public void filter(ContainerRequestContext requestContext, ContainerResponseContext responseContext) throws IOException {

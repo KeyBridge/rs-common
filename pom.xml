@@ -3,15 +3,23 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>keybridge.lib</groupId>
   <artifactId>rs-filter</artifactId>
-  <version>0.1.0</version>
+  <version>0.2.0</version>
   <packaging>jar</packaging>
 
   <name>lib-rs-filter</name>
-  <description>Rest filters
+  <description>RESTful web service filter implementations.
+
+    This library provides filter interfaces that may be applied to any JAX-RS (Jersey)
+    REST service. Filters are applied by annotation.
+
+    Includes reference implementations of the following RESTful protocols and strategies:
+
+    MessageAddressing - REST implementation of SOAP Web Services Addressing 1.0 (WS-Addressing) protocol
 
     History
 
     v0.1.0 - import basic container filters from ssp-develop
+    v0.2.0 - refactor all into 'ch.keybridge.rs' base package
 
 
   </description>
