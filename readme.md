@@ -34,14 +34,14 @@ public class HelloWorldResource {
 
     @GET
     @Produces("text/plain")
-    @Logged
+    @Logged                       // binds LoggingFilter to this method
     public String getHello() {
         return "Hello World!";
     }
 }
 ```
 
-Finally to create a name binding annotation from @Logged just put @NameBinding on top of it:
+Finally to create a name binding annotation from _@Logged_ just put _@NameBinding_ on top of it:
 
 ```java
 @NameBinding
