@@ -122,7 +122,7 @@ public class AbstractRestClient {
    *
    * @return a Jersey HTTP client
    */
-  protected Client client() {
+  protected Client buildClient() {
     /**
      * Internal method to build a simple web-target attached to the
      * WEBSERVICE_BASE. The connect and read timeout are set.
@@ -160,7 +160,7 @@ public class AbstractRestClient {
    * @return a Jersey HTTP client
    * @throws Exception if TLSv1 is not supported
    */
-  protected Client trustingClient() throws Exception {
+  protected Client buildTrustingClient() throws Exception {
     /**
      * Set the default X509 Trust Manager to an instance of a fake class that
      * trust all certificates, even the self-signed ones.
