@@ -16,6 +16,7 @@ package ch.keybridge.rs.filter.impl;
 import java.io.*;
 import java.util.logging.Logger;
 import javax.ws.rs.container.ContainerRequestContext;
+import javax.ws.rs.container.ContainerResponseContext;
 
 /**
  * An abstract container filter based on JavaEE 7 example. Provides messages to
@@ -72,6 +73,17 @@ public abstract class AbstractContainerFilter {
    * @param responseContext the response
    * @return the data
    */
+  protected String readRawData(ContainerResponseContext responseContext) {
+    /**
+     * If a string, return the content.
+     */
+    if (String.class.equals(responseContext.getEntityClass())) {
+      return (String) responseContext.getEntity();
+    } else {
+      return responseContext.getEntity().toString();
+    }
+  }
+
 //  protected String readJsonData(ContainerResponseContext responseContext) {
 //    try {
 //      /**
