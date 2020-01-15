@@ -45,9 +45,8 @@ public class CacheControlDynamicFeature implements DynamicFeature {
    * can implement code which defines the bindings during the application
    * initialization time. To achieve dynamic binding, we need to define a
    * feature (extending a class from DynamicFeature and annotate it with
-   *
-   * @Provider) and programmatically register our filter (the Filter should not
-   * use @Provider).
+   * Provider) and programmatically register our filter (the Filter should not
+   * use Provider).
    */
   @Override
   public void configure(ResourceInfo resourceInfo, FeatureContext context) {

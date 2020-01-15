@@ -65,6 +65,12 @@ public class EtagFilter extends AbstractContainerFilter implements ContainerResp
   @Override
   public void filter(ContainerRequestContext requestContext, ContainerResponseContext responseContext) throws IOException {
     /**
+     * Short circuit if the ETag is already set.
+     */
+    if (responseContext.getEntityTag() != null) {
+      return;
+    }
+    /**
      * The entity tag, which will be populated one way or another.
      */
     EntityTag etag;
@@ -85,20 +91,18 @@ public class EtagFilter extends AbstractContainerFilter implements ContainerResp
        * function fails.
        */
       try {
-        etag = new EntityTag(md5(data));
+        etag = new EntityTag(md5Hash(data));
       } catch (NoSuchAlgorithmException ex) {
-        LOG.log(Level.WARNING, "ETag generation error:  {0}", ex.getMessage());
         /**
          * Set a WEAK tag on error.
          */
-        etag = new EntityTag("t-" + Objects.hash(data), true);
+        etag = new EntityTag("h-" + Objects.hash(data), true);
       }
     }
     /**
      * Set the EntityTag.
      */
     responseContext.getHeaders().putSingle(HttpHeaders.ETAG, etag);
-
   }
 
   /**
@@ -109,11 +113,31 @@ public class EtagFilter extends AbstractContainerFilter implements ContainerResp
    * @throws NoSuchAlgorithmException if the MD5 hash is not supported by the
    *                                  operating system
    */
-  private String md5(String data) throws NoSuchAlgorithmException {
+  private static String md5Hash(String data) throws NoSuchAlgorithmException {
     MessageDigest md = MessageDigest.getInstance("MD5");
     md.update(data.getBytes());
     byte[] digest = md.digest();
     return DatatypeConverter.printHexBinary(digest).toUpperCase();
+  }
+
+  /**
+   * Safe method to evaluate an MD5 hash. If MD5 is not supported then returns
+   * the simple Java Objects hash.
+   *
+   * @param data the text data
+   * @return an md5 hash of the text
+   */
+  public static String md5(String data) {
+    try {
+      MessageDigest md = MessageDigest.getInstance("MD5");
+      md.update(data.getBytes());
+      byte[] digest = md.digest();
+      return DatatypeConverter.printHexBinary(digest).toUpperCase();
+    } catch (NoSuchAlgorithmException noSuchAlgorithmException) {
+      LOG.log(Level.WARNING, "MD5 hash error:  {0}", noSuchAlgorithmException.getMessage());
+      return "h-" + Objects.hash(data);
+
+    }
   }
 
 }
