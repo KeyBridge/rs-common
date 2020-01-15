@@ -45,6 +45,13 @@ import javax.ws.rs.NameBinding;
  * negotiation resulting in multiple representations being valid at the same
  * time, or both. An entity-tag consists of an opaque quoted string, possibly
  * prefixed by a weakness indicator.
+ * <p>
+ * Instructions:
+ * <p>
+ * You can manually set the ETag by setting a response header "ETAG", which will
+ * be picked up by the filter and set. A manual ETag should ALWAYS be used for
+ * large message body content. Otherwise, an ETag is calculated as the MD5 hash
+ * of the message body content.
  *
  * @see
  * <a href="https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/ETag">ETag</a>

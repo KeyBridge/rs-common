@@ -3,7 +3,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>keybridge.lib</groupId>
   <artifactId>rs-filter</artifactId>
-  <version>0.4.0</version>
+  <version>0.5.0</version>
   <packaging>jar</packaging>
 
   <name>lib-rs-filter</name>
@@ -23,6 +23,7 @@
     v0.2.0 - refactor all into 'ch.keybridge.rs' base package
     v0.3.0 - add abstract rest client and client filters
     v0.4.0 - add cache control and other dynamic filters
+    v0.5.0 - allow manual ETag configuration
 
   </description>
 

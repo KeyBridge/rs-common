@@ -54,6 +54,8 @@ public class EtagFilter extends AbstractContainerFilter implements ContainerResp
 
   private static final Logger LOG = Logger.getLogger(EtagFilter.class.getName());
 
+  private static final String ETAG_HEADER = "ETAG";
+
   /**
    * {@inheritDoc}
    * <p>
@@ -63,22 +65,34 @@ public class EtagFilter extends AbstractContainerFilter implements ContainerResp
   @Override
   public void filter(ContainerRequestContext requestContext, ContainerResponseContext responseContext) throws IOException {
     /**
-     * Try to set a strong tag as an MD5 hash of the response body.
+     * The entity tag, which will be populated one way or another.
      */
-    String data = readRawData(responseContext);
-    EntityTag etag = null;
+    EntityTag etag;
     /**
-     * Try to build a strong EntityTag, but set a weak one if the hashing
-     * function fails.
+     * If the response placed an ETAG header then use it.
      */
-    try {
-      etag = new EntityTag(md5(data));
-    } catch (NoSuchAlgorithmException ex) {
-      LOG.log(Level.WARNING, "ETag generation error:  {0}", ex.getMessage());
+    if (responseContext.getHeaders().containsKey(ETAG_HEADER)) {
+      etag = new EntityTag(responseContext.getHeaderString(ETAG_HEADER));
+      responseContext.getHeaders().remove(ETAG_HEADER);
+    } else {
       /**
-       * Set a WEAK tag on error.
+       * Calculate the e-tag from the message body content. Try to set a strong
+       * tag as an MD5 hash of the response body.
        */
-      etag = new EntityTag("t-" + Objects.hash(data), true);
+      String data = readRawData(responseContext);
+      /**
+       * Try to build a strong EntityTag, but set a weak one if the hashing
+       * function fails.
+       */
+      try {
+        etag = new EntityTag(md5(data));
+      } catch (NoSuchAlgorithmException ex) {
+        LOG.log(Level.WARNING, "ETag generation error:  {0}", ex.getMessage());
+        /**
+         * Set a WEAK tag on error.
+         */
+        etag = new EntityTag("t-" + Objects.hash(data), true);
+      }
     }
     /**
      * Set the EntityTag.
