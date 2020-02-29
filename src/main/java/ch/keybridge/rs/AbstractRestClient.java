@@ -165,8 +165,8 @@ public class AbstractRestClient {
      * Set the default X509 Trust Manager to an instance of a fake class that
      * trust all certificates, even the self-signed ones.
      */
-    SSLContext sc = SSLContext.getInstance("TLSv1"); //Java 8   // NoSuchAlgorithmException
-    System.setProperty("https.protocols", "TLSv1");  //Java 8
+    SSLContext sc = SSLContext.getInstance("TLSv1.2"); //Java 8   // NoSuchAlgorithmException
+    System.setProperty("https.protocols", "TLSv1.2");  //Java 8
     TrustManager[] trustAllCerts = {new InsecureTrustManager()};
     sc.init(null, trustAllCerts, new java.security.SecureRandom()); // KeyManagementException
     /**
