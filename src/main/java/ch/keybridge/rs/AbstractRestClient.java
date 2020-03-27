@@ -32,7 +32,7 @@ import javax.ws.rs.client.ClientResponseFilter;
  * @author Key Bridge
  * @since v0.3.0 copied from lib-rest-client
  */
-public class AbstractRestClient {
+public abstract class AbstractRestClient {
 
   /**
    * Connect timeout interval, in milliseconds. The value MUST be an instance
@@ -82,6 +82,11 @@ public class AbstractRestClient {
    */
   private int timoutRead;
 
+  /**
+   * Enable or disable client logging. Default is enabled.
+   */
+  private boolean clientLogging = true;
+
   public AbstractRestClient() {
     this.timoutConnect = TIMEOUT_CONNECT;
     this.timoutRead = TIMEOUT_READ;
@@ -90,6 +95,15 @@ public class AbstractRestClient {
   public AbstractRestClient(int timoutConnect, int timoutRead) {
     this.timoutConnect = timoutConnect;
     this.timoutRead = timoutRead;
+  }
+
+  /**
+   * Enable or disable client logging. Default is enabled.
+   *
+   * @param clientLogging TRUE to enable, false to disable.
+   */
+  public void setClientLogging(boolean clientLogging) {
+    this.clientLogging = clientLogging;
   }
 
   /**
@@ -133,7 +147,9 @@ public class AbstractRestClient {
     /**
      * If transaction logging is enabled the register the client logging filter.
      */
-    client.register(ClientLoggingFilter.class, ClientResponseFilter.class);
+    if (clientLogging) {
+      client.register(ClientLoggingFilter.class, ClientResponseFilter.class);
+    }
     /**
      * Connect timeout interval, in milliseconds. The value MUST be an instance
      * convertible to Integer. A value of zero (0) is equivalent to an interval
@@ -178,6 +194,12 @@ public class AbstractRestClient {
     Client client = ClientBuilder.newBuilder().sslContext(sc).hostnameVerifier(allHostsValid).build();
     client.property(CONNECT_TIMEOUT, timoutConnect); // should immediately connect
     client.property(READ_TIMEOUT, timoutRead); // wait for processing
+    /**
+     * If transaction logging is enabled the register the client logging filter.
+     */
+    if (clientLogging) {
+      client.register(ClientLoggingFilter.class, ClientResponseFilter.class);
+    }
     return client;
   }
 
