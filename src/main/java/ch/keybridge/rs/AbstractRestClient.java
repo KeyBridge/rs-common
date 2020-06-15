@@ -87,11 +87,21 @@ public abstract class AbstractRestClient {
    */
   private boolean clientLogging = true;
 
+  /**
+   * Default no-arg constructor. Sets the connect timeout to 1 second and read
+   * timeout to 5 seconds.
+   */
   public AbstractRestClient() {
     this.timoutConnect = TIMEOUT_CONNECT;
     this.timoutRead = TIMEOUT_READ;
   }
 
+  /**
+   * New constructor.
+   *
+   * @param timoutConnect Connect timeout interval, in milliseconds.
+   * @param timoutRead    Read timeout interval, in milliseconds.
+   */
   public AbstractRestClient(int timoutConnect, int timoutRead) {
     this.timoutConnect = timoutConnect;
     this.timoutRead = timoutRead;
