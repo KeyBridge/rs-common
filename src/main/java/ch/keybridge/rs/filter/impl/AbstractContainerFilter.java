@@ -84,6 +84,10 @@ public abstract class AbstractContainerFilter {
     }
   }
 
+  /**
+   * If the body content encoding is known then a custom reader function can be
+   * used to marshal the data object.
+   */
 //  protected String readJsonData(ContainerResponseContext responseContext) {
 //    try {
 //      /**
