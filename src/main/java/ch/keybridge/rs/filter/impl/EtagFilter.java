@@ -80,7 +80,7 @@ public class EtagFilter extends AbstractContainerFilter implements ContainerResp
     if (responseContext.getHeaders().containsKey(ETAG_HEADER)) {
       etag = new EntityTag(responseContext.getHeaderString(ETAG_HEADER));
       responseContext.getHeaders().remove(ETAG_HEADER);
-    } else {
+    } else if (responseContext.getEntity() != null) {
       /**
        * Calculate the e-tag from the message body content. Try to set a strong
        * tag as an MD5 hash of the response body.
@@ -98,11 +98,18 @@ public class EtagFilter extends AbstractContainerFilter implements ContainerResp
          */
         etag = new EntityTag("h-" + Objects.hash(data), true);
       }
+    } else {
+      /**
+       * The response content is null. Do not set an entity tag.
+       */
+      etag = null;
     }
     /**
-     * Set the EntityTag.
+     * Conditionally set the EntityTag.
      */
-    responseContext.getHeaders().putSingle(HttpHeaders.ETAG, etag);
+    if (etag != null) {
+      responseContext.getHeaders().putSingle(HttpHeaders.ETAG, etag);
+    }
   }
 
   /**

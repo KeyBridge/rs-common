@@ -71,7 +71,7 @@ public abstract class AbstractContainerFilter {
    * Get the HTTP response entity body.
    *
    * @param responseContext the response
-   * @return the data
+   * @return the data or an empty string if the data is null
    */
   protected String readRawData(ContainerResponseContext responseContext) {
     /**
@@ -80,7 +80,9 @@ public abstract class AbstractContainerFilter {
     if (String.class.equals(responseContext.getEntityClass())) {
       return (String) responseContext.getEntity();
     } else {
-      return responseContext.getEntity().toString();
+      return responseContext.getEntity() == null
+             ? ""
+             : responseContext.getEntity().toString();
     }
   }
 
