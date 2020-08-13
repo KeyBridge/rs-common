@@ -31,6 +31,9 @@ import javax.ws.rs.ext.Provider;
 /**
  * DynamicFeature implementation to apply the CacheControlFilter to REST classes
  * or methods annotated with the @CacheControl interface.
+ * <p>
+ * DynamicFeature is a a JAX-RS meta-provider for dynamic registration of
+ * post-matching providers during a JAX-RS application setup at deployment time.
  *
  * @author Key Bridge
  * @since v0.4.0 created 12/21/19

@@ -38,23 +38,31 @@ import javax.ws.rs.core.SecurityContext;
  * Authorization</a>
  * @see <a href="https://tools.ietf.org/html/rfc7235#section-4.2">HTTP
  * Authentication</a>
- * @see <a href="https://tools.ietf.org/html/rfc7617">Basic authentication</a>
- * @see <a href="https://tools.ietf.org/html/rfc7750">Bearer authentication</a>
- * @see <a href="https://tools.ietf.org/html/rfc7616">Digest authentication</a>
- * @see <a href="https://tools.ietf.org/html/rfc5849#section-3.5.1">OAuth
- * authentication</a>
+ * @see <a href="https://tools.ietf.org/html/rfc7617">Basic</a>
+ * @see <a href="https://tools.ietf.org/html/rfc6750">Oauth bearer profile</a>
+ * @see <a href="https://tools.ietf.org/html/rfc7523">JWT bearer profile</a>
+ * @see <a href="https://tools.ietf.org/html/rfc7616">Digest</a>
+ * @see <a href="https://tools.ietf.org/html/rfc5849#section-3.5.1">Oauth</a>
+ * @see <a href="https://tools.ietf.org/html/rfc7486">HOBA</a>
+ * @see <a href="https://tools.ietf.org/html/rfc8120">Mutual</a>
+ * @see <a href="https://tools.ietf.org/html/rfc4559#section-4">Negotiate</a>
+ * @see <a href="https://tools.ietf.org/html/rfc5802">SCRAM</a>
+ * @see <a href="https://tools.ietf.org/html/rfc8292">Vapid</a>
  */
-public interface AuthorizationValidator {
+public interface HttpAuthorizationValidator {
 
   /**
-   * Validate the authorization.
+   * Validate the authorization. Produces a SecurityContext implementation that
+   * provides access to security related information for the indicated
+   * authorization detail.
+   * <p>
+   * Note that the security context 'secure' value is set to false.
    *
    * @param type        the authentication type. A common type is "Basic". Other
    *                    types include [Basic, Bearer, Digest, HOBA, Mutual,
    *                    Negotiate, OAuth, SCRAM-SHA-1, SCRAM-SHA-256, vapid]
-   * @param credentials the base-64 encoded authentication credential. This
-   *                    typically encodes an access key ID and scope
-   *                    information.
+   * @param credentials the authentication credential. This typically encodes an
+   *                    access key ID and scope information.
    * @return TRUE if the credentials are valid, otherwise false
    * @see
    * <a href="http://www.iana.org/assignments/http-authschemes/http-authschemes.xhtml">HTTP
@@ -62,20 +70,21 @@ public interface AuthorizationValidator {
    * @throws WebApplicationException if validation fails or the user is not
    *                                 authorized
    */
-  SecurityContext validate(String type, String credentials) throws WebApplicationException;
-
+//  SecurityContext validate(AuthorizationType type, String credentials) throws WebApplicationException;
   /**
-   * Get a SecurityContext implementation that provides access to security
-   * related information for the indicated authorization detail.
+   * Validate the authorization. Produces a SecurityContext implementation that
+   * provides access to security related information for the indicated
+   * authorization detail.
    *
    * @param type        the authentication type. A common type is "Basic". Other
    *                    types include [Basic, Bearer, Digest, HOBA, Mutual,
    *                    Negotiate, OAuth, SCRAM-SHA-1, SCRAM-SHA-256, vapid]
-   * @param credentials the base-64 encoded authentication credential. This
-   *                    typically encodes an access key ID and scope
-   *                    information.
+   * @param credentials the authentication credential. This typically encodes an
+   *                    access key ID and scope information.
+   * @param secure      boolean indicating whether this request was made using a
+   *                    secure channel, such as HTTPS.
    * @return the SecurityContext implementation for the user corresponding to
    *         the provided credentials
    */
-//  SecurityContext getSecurityContext(String type, String credentials);
+  SecurityContext validate(AuthorizationType type, String credentials, boolean secure) throws WebApplicationException;
 }

@@ -116,11 +116,11 @@ public class MessageAddressingFilter implements ContainerRequestFilter, Containe
   @Override
   public void filter(ContainerRequestContext requestContext, ContainerResponseContext responseContext) throws IOException {
     /**
-     * Add a unique outbound MessageId header to the response.
+     * Always add a unique outbound MessageId header to the response.
      */
     responseContext.getHeaders().add(MESSAGE_ID, UUID.randomUUID().toString());
     /**
-     * If the incoming message is identified then add a relatesTo response
+     * If the incoming message is identified then add a `relatesTo` response
      * header.
      */
     String messageId = requestContext.getHeaderString(MESSAGE_ID);
