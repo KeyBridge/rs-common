@@ -18,6 +18,7 @@
  */
 package ch.keybridge.rs;
 
+import ch.keybridge.rs.type.AuthorizationType;
 import java.security.Principal;
 import java.util.List;
 import javax.ws.rs.core.SecurityContext;

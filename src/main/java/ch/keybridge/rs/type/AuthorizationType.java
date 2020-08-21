@@ -16,7 +16,7 @@
  * suppliers, if any. The intellectual and technical concepts contained herein
  * are proprietary.
  */
-package ch.keybridge.rs;
+package ch.keybridge.rs.type;
 
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -81,17 +81,18 @@ public enum AuthorizationType {
    */
   NEGOTIATE,
   /**
-   * SCRAM-SHA-256 and SCRAM-SHA-256-PLUS Simple Authentication and Security
-   * Layer (SASL) Mechanisms
+   * Salted Challenge Response Authentication Mechanism (SCRAM) SASL and GSS-API
+   * Mechanisms
    *
-   * @see <a href="https://tools.ietf.org/html/rfc7677">SCRAM authentication</a>
+   * @see <a href="https://tools.ietf.org/html/rfc5802">SCRAM authentication</a>
    */
   SCRAM_SHA_1,
   /**
    * SCRAM-SHA-256 and SCRAM-SHA-256-PLUS Simple Authentication and Security
    * Layer (SASL) Mechanisms
    *
-   * @see <a href="https://tools.ietf.org/html/rfc7677">SCRAM authentication</a>
+   * @see <a href="https://tools.ietf.org/html/rfc7677">SCRAM 256
+   * authentication</a>
    */
   SCRAM_SHA_256,
   /**

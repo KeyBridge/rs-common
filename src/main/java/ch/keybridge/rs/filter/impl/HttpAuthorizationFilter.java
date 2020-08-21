@@ -18,8 +18,7 @@
  */
 package ch.keybridge.rs.filter.impl;
 
-import ch.keybridge.rs.AuthorizationType;
-import ch.keybridge.rs.HttpAuthorizationValidator;
+import ch.keybridge.rs.type.AuthorizationType;
 import java.io.IOException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -35,12 +34,34 @@ import javax.ws.rs.core.SecurityContext;
  * authenticate a user agent with a server, usually, but not necessarily, after
  * the server has responded with a 401 Unauthorized status and the
  * WWW-Authenticate header.
+ * <p>
+ * The HTTP `Authorization` request header contains the credentials to
+ * authenticate a user agent with a server, usually, but not necessarily, after
+ * the server has responded with a 401 Unauthorized status and the
+ * WWW-Authenticate header.
+ * <p>
+ * Syntax is {@code Authorization: <type> <credentials>}
  *
  * @author Key Bridge
  * @since v0.7.0 created 2020-08-12
  * @see
  * <a href="https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Authorization">HTTP
  * Authorization</a>
+ * @see
+ * <a href="http://www.iana.org/assignments/http-authschemes/http-authschemes.xhtml">HTTP
+ * Authentication Scheme Registry</a>
+ * @see <a href="https://tools.ietf.org/html/rfc7235#section-4.2">HTTP
+ * Authentication</a>
+ * @see <a href="https://tools.ietf.org/html/rfc7617">Basic</a>
+ * @see <a href="https://tools.ietf.org/html/rfc6750">Oauth bearer profile</a>
+ * @see <a href="https://tools.ietf.org/html/rfc7523">JWT bearer profile</a>
+ * @see <a href="https://tools.ietf.org/html/rfc7616">Digest</a>
+ * @see <a href="https://tools.ietf.org/html/rfc5849#section-3.5.1">Oauth</a>
+ * @see <a href="https://tools.ietf.org/html/rfc7486">HOBA</a>
+ * @see <a href="https://tools.ietf.org/html/rfc8120">Mutual</a>
+ * @see <a href="https://tools.ietf.org/html/rfc4559#section-4">Negotiate</a>
+ * @see <a href="https://tools.ietf.org/html/rfc5802">SCRAM</a>
+ * @see <a href="https://tools.ietf.org/html/rfc8292">Vapid</a>
  */
 //@HttpAuthorization
 //@Priority(Priorities.AUTHORIZATION) // Security authorization filter/interceptor priority.
@@ -48,28 +69,22 @@ public abstract class HttpAuthorizationFilter implements ContainerRequestFilter 
 
   private static final Logger LOG = Logger.getLogger(HttpAuthorizationFilter.class.getName());
   /**
+   * The Container request filter context for the instant request. Provides
+   * request-specific information for the filter, such as request URI, message
+   * headers, message entity or request-scoped properties. The exposed setters
+   * allow modification of the exposed request-specific information.
+   */
+  protected ContainerRequestContext requestContext;
+
+  /**
    * The request header authorization type.
    */
   protected AuthorizationType authorizationType;
 
   /**
-   * The authorization validator implementation.
-   */
-  protected final HttpAuthorizationValidator validator;
-
-  /**
-   * Construct a new filter using the provided validator.
-   *
-   * @param validator an http authorization validator instance.
-   */
-  public HttpAuthorizationFilter(HttpAuthorizationValidator validator) {
-    this.validator = validator;
-  }
-
-  /**
    * {@inheritDoc}
    * <p>
-   * Evaluate the HTTP Authorization request header to validate the request. If
+   * Evaluate the HTTP Authorization request header and validate the request. If
    * validated then the security context is set identifying the current user.
    */
   @Override
@@ -97,16 +112,18 @@ public abstract class HttpAuthorizationFilter implements ContainerRequestFilter 
       throw new WebApplicationException(Response.Status.UNAUTHORIZED);
     }
     /**
+     * Provide a reference to the request context in case it is needed by the
+     * filter implementation.
+     */
+    this.requestContext = requestContext;
+    /**
      * Try to validate the authentication credentials. Copy the
      * requestContext::SecurityContext::secure status.
      */
-    SecurityContext securityContext = validator.validate(authorizationType,
-                                                         credentials,
-                                                         requestContext.getSecurityContext().isSecure()); // throws WebApplicationException
+    SecurityContext securityContext = this.validate(credentials); // throws WebApplicationException
     if (securityContext == null) {
       throw new WebApplicationException(Response.Status.UNAUTHORIZED);
     }
-
     /**
      * Set the security context.
      */
@@ -116,7 +133,8 @@ public abstract class HttpAuthorizationFilter implements ContainerRequestFilter 
   /**
    * Validate the authorization. Produces a SecurityContext implementation that
    * provides access to security related information for the indicated
-   * authorization detail.
+   * authorization detail. Note that the validate implementation MUST be
+   * compatible with the `authorizationType`.
    *
    * @param credentials the authentication credential. This typically encodes an
    *                    access key ID and scope information.
