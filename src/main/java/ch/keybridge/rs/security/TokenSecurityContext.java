@@ -30,6 +30,7 @@ import javax.ws.rs.core.SecurityContext;
  * <p>
  * The authentication scheme is `Bearer`.
  *
+ * @see <a href="https://tools.ietf.org/html/rfc6750">Oauth bearer profile</a>
  * @author Key Bridge
  * @since v0.8.0 created 2020-08-12
  */
