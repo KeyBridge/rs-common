@@ -3,7 +3,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>keybridge.lib</groupId>
   <artifactId>rs-filter</artifactId>
-  <version>0.7.0</version>
+  <version>0.8.0</version>
   <packaging>jar</packaging>
 
   <name>lib-rs-filter</name>
@@ -26,6 +26,7 @@
     v0.5.0 - allow manual ETag configuration
     v0.6.0 - bug fix for etag against null responses
     v0.7.0 - add http authorization header blueprint; implementation is application specific
+    v0.8.0 - add token security context, filters, etc.
 
 
 
