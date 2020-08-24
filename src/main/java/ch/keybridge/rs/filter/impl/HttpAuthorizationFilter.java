@@ -1,146 +1,158 @@
-/*
- * Copyright 2020 Key Bridge. All rights reserved. Use is subject to license
- * terms.
- *
- * This software code is protected by Copyrights and remains the property of
- * Key Bridge and its suppliers, if any. Key Bridge reserves all rights in and to
- * Copyrights and no license is granted under Copyrights in this Software
- * License Agreement.
- *
- * Key Bridge generally licenses Copyrights for commercialization pursuant to
- * the terms of either a Standard Software Source Code License Agreement or a
- * Standard Product License Agreement. A copy of either Agreement can be
- * obtained upon request by sending an email to info@keybridgewireless.com.
- *
- * All information contained herein is the property of Key Bridge and its
- * suppliers, if any. The intellectual and technical concepts contained herein
- * are proprietary.
- */
 package ch.keybridge.rs.filter.impl;
 
-import ch.keybridge.rs.type.AuthorizationType;
+import ch.keybridge.rs.filter.HttpAuthorization;
 import java.io.IOException;
+import java.lang.reflect.Method;
+import java.util.Arrays;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.annotation.Priority;
+import javax.annotation.security.DenyAll;
+import javax.annotation.security.PermitAll;
+import javax.annotation.security.RolesAllowed;
+import javax.enterprise.context.Dependent;
+import javax.ws.rs.Priorities;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.container.ContainerRequestContext;
 import javax.ws.rs.container.ContainerRequestFilter;
-import javax.ws.rs.core.HttpHeaders;
+import javax.ws.rs.container.ResourceInfo;
+import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
-import javax.ws.rs.core.SecurityContext;
+import javax.ws.rs.ext.Provider;
 
 /**
- * An HTTP authorization request filter. Evaluates the credentials to
- * authenticate a user agent with a server, usually, but not necessarily, after
- * the server has responded with a 401 Unauthorized status and the
- * WWW-Authenticate header.
+ * HTTP role based authorization (AuthZ) filter. Reads and implements the
+ * JSR-250 annotations 'RolesAllowed', 'PermitAll' and 'DenyAll'. Implements
+ * logic from the Jersey RolesAllowedDynamicFeature.
  * <p>
- * The HTTP `Authorization` request header contains the credentials to
- * authenticate a user agent with a server, usually, but not necessarily, after
- * the server has responded with a 401 Unauthorized status and the
- * WWW-Authenticate header.
- * <p>
- * Syntax is {@code Authorization: <type> <credentials>}
+ * To us: Annotate your REST class with 'HttpAuthorization'.
  *
+ * @see
+ * <a href="https://github.com/jersey/jersey/blob/master/core-server/src/main/java/org/glassfish/jersey/server/filter/RolesAllowedDynamicFeature.java">RolesAllowedDynamicFeature</a>
+ * @see
+ * <a href="https://docs.oracle.com/javaee/6/api/javax/annotation/security/package-summary.html">Security</a>
+ * @see <a href="https://jcp.org/en/jsr/detail?id=250">JSR 250: Common
+ * Annotations for the JavaTM Platform</a>
  * @author Key Bridge
- * @since v0.7.0 created 2020-08-12
- * @see
- * <a href="https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Authorization">HTTP
- * Authorization</a>
- * @see
- * <a href="http://www.iana.org/assignments/http-authschemes/http-authschemes.xhtml">HTTP
- * Authentication Scheme Registry</a>
- * @see <a href="https://tools.ietf.org/html/rfc7235#section-4.2">HTTP
- * Authentication</a>
- * @see <a href="https://tools.ietf.org/html/rfc7617">Basic</a>
- * @see <a href="https://tools.ietf.org/html/rfc6750">Oauth bearer profile</a>
- * @see <a href="https://tools.ietf.org/html/rfc7523">JWT bearer profile</a>
- * @see <a href="https://tools.ietf.org/html/rfc7616">Digest</a>
- * @see <a href="https://tools.ietf.org/html/rfc5849#section-3.5.1">Oauth</a>
- * @see <a href="https://tools.ietf.org/html/rfc7486">HOBA</a>
- * @see <a href="https://tools.ietf.org/html/rfc8120">Mutual</a>
- * @see <a href="https://tools.ietf.org/html/rfc4559#section-4">Negotiate</a>
- * @see <a href="https://tools.ietf.org/html/rfc5802">SCRAM</a>
- * @see <a href="https://tools.ietf.org/html/rfc8292">Vapid</a>
+ * @since v0.8.0 created 2020-08-24
  */
-//@HttpAuthorization
-//@Priority(Priorities.AUTHORIZATION) // Security authorization filter/interceptor priority.
-public abstract class HttpAuthorizationFilter implements ContainerRequestFilter {
+@Provider
+@Dependent
+@HttpAuthorization
+@Priority(Priorities.AUTHORIZATION)
+public class HttpAuthorizationFilter implements ContainerRequestFilter {
 
   private static final Logger LOG = Logger.getLogger(HttpAuthorizationFilter.class.getName());
-  /**
-   * The Container request filter context for the instant request. Provides
-   * request-specific information for the filter, such as request URI, message
-   * headers, message entity or request-scoped properties. The exposed setters
-   * allow modification of the exposed request-specific information.
-   */
-  protected ContainerRequestContext requestContext;
 
   /**
-   * The request header authorization type.
+   * Provides access the resource class and resource method matched by the
+   * current request.
    */
-  protected AuthorizationType authorizationType;
+  @Context
+  private ResourceInfo resourceInfo;
 
   /**
    * {@inheritDoc}
    * <p>
-   * Evaluate the HTTP Authorization request header and validate the request. If
-   * validated then the security context is set identifying the current user.
+   * DenyAll takes precedence over RolesAllowed and PermitAll on amethod <br>
+   * RolesAllowed takes precedence over PermitAll on a method  <br>
+   * PermitAll takes precedence over RolesAllowed on a method <br>
+   * DenyAll can't be attached to a class.  <br>
+   * RolesAllowed takes precedence over PermitAll on a class
    */
   @Override
-  public void filter(ContainerRequestContext requestContext) throws IOException {
+  public void filter(final ContainerRequestContext requestContext) throws IOException {
     /**
-     * Get the authorization header value. Syntax is
-     * {@code Authorization: <type> <credentials>}. Returns the
-     * {@code <type> <credentials>} payload.
+     * Get the resource method that is the target of a request.
      */
-    String authorizationPayload = requestContext.getHeaderString(HttpHeaders.AUTHORIZATION);
-    if (authorizationPayload == null || authorizationPayload.trim().isEmpty()) {
-      throw new WebApplicationException(Response.Status.UNAUTHORIZED);
+    Method resourceMethod = resourceInfo.getResourceMethod();
+    /**
+     * 'DenyAll' specifies that no security roles are allowed to invoke the
+     * specified method(s) - i.e that the methods are to be excluded from
+     * execution in the J2EE container.
+     */
+    if (resourceMethod.isAnnotationPresent(DenyAll.class)) {
+      LOG.log(Level.FINE, "DenyAll request '{'method={0}'}'", resourceMethod.getName());
+      throw new WebApplicationException(Response.Status.FORBIDDEN);
     }
     /**
-     * Capture the authorization type and credentials.
+     * `RolesAllowed` specifies the list of roles permitted to access method(s)
+     * in an application. The value of the RolesAllowed annotation is a list of
+     * security role names.
      */
-    String type = authorizationPayload.split("\\s")[0];
-    String credentials = authorizationPayload.replaceFirst(type, "").trim();
-    /**
-     * Try to validate the authorization type.
-     */
-    authorizationType = AuthorizationType.parse(type);
-    if (authorizationType == null) {
-      LOG.log(Level.FINE, "Unrecognized authorization type: {0}", type);
-      throw new WebApplicationException(Response.Status.UNAUTHORIZED);
+    RolesAllowed rolesAllowed = resourceMethod.getAnnotation(RolesAllowed.class);
+    if (rolesAllowed != null) {
+      performAuthorization(rolesAllowed.value(), requestContext);
+      return;
     }
     /**
-     * Provide a reference to the request context in case it is needed by the
-     * filter implementation.
+     * 'PermitAll' specifies that all security roles are allowed to invoke the
+     * specified method(s) i.e that the specified method(s) are "unchecked". It
      */
-    this.requestContext = requestContext;
-    /**
-     * Try to validate the authentication credentials. Copy the
-     * requestContext::SecurityContext::secure status.
-     */
-    SecurityContext securityContext = this.validate(credentials); // throws WebApplicationException
-    if (securityContext == null) {
-      throw new WebApplicationException(Response.Status.UNAUTHORIZED);
+    if (resourceMethod.isAnnotationPresent(PermitAll.class)) {
+      return; // Do nothing
     }
     /**
-     * Set the security context.
+     * DenyAll can't be attached to classes. RolesAllowed on the class takes
+     * precedence over PermitAll on the class
      */
-    requestContext.setSecurityContext(securityContext);
+    rolesAllowed = resourceInfo.getResourceClass().getAnnotation(RolesAllowed.class);
+    if (rolesAllowed != null) {
+      performAuthorization(rolesAllowed.value(), requestContext);
+    }
+    /**
+     * @PermitAll on the class
+     */
+    if (resourceInfo.getResourceClass().isAnnotationPresent(PermitAll.class)) {
+      return;  // Do nothing
+    }
+    /**
+     * Authentication is required for non-annotated methods
+     */
+    if (!isAuthenticated(requestContext)) {
+      LOG.log(Level.FINE, "Unuthenticated request '{'method={0}'}'", resourceMethod.getName());
+      throw new WebApplicationException(Response.Status.UNAUTHORIZED);
+    }
   }
 
   /**
-   * Validate the authorization. Produces a SecurityContext implementation that
-   * provides access to security related information for the indicated
-   * authorization detail. Note that the validate implementation MUST be
-   * compatible with the `authorizationType`.
+   * Perform authorization based on roles.
    *
-   * @param credentials the authentication credential. This typically encodes an
-   *                    access key ID and scope information.
-   * @return the SecurityContext implementation for the user corresponding to
-   *         the provided credentials
+   * @param rolesAllowed   the list of roles permitted to access method(s) in an
+   *                       application
+   * @param requestContext the Container request filter context.
    */
-  public abstract SecurityContext validate(String credentials);
+  private void performAuthorization(String[] rolesAllowed, ContainerRequestContext requestContext) {
+    /**
+     * Basic sanity check before processing.
+     */
+    if (rolesAllowed.length > 0 && !isAuthenticated(requestContext)) {
+      LOG.log(Level.FINE, "Unuthenticated user request '{'method={0}, rolesAllowed={1}'}'", new Object[]{resourceInfo.getResourceMethod().getName(), Arrays.toString(rolesAllowed)});
+      throw new WebApplicationException(Response.Status.UNAUTHORIZED);
+    }
+    /**
+     * Return if the user is in the role.
+     */
+    for (final String role : rolesAllowed) {
+      if (requestContext.getSecurityContext().isUserInRole(role)) {
+        System.out.println("debug MATCH isUserInRole " + role);
+        return;
+      }
+    }
+    /**
+     * The user is authenticated but does not have the required role.
+     */
+    LOG.log(Level.INFO, "Authenticated user not in rolesAllowed {0}", Arrays.toString(rolesAllowed));
+    throw new WebApplicationException(Response.Status.FORBIDDEN);
+  }
 
+  /**
+   * Check if the user is authenticated.
+   *
+   * @param requestContext the Container request filter context.
+   * @return TRUE if the user security principal is configured, false if null
+   */
+  private boolean isAuthenticated(final ContainerRequestContext requestContext) {
+    return requestContext.getSecurityContext().getUserPrincipal() != null;
+  }
 }
