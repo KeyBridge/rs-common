@@ -27,53 +27,56 @@ import java.util.HashSet;
 import javax.ws.rs.core.SecurityContext;
 
 /**
+ * The OAuth 2.0 Authorization Framework: Bearer JSON Web Token (JWT) Profile
+ * for OAuth 2.0 Client Authentication and Authorization Grants.
+ * <p>
  * HTTP BEARER {@link SecurityContext} implementation for JWT (Json-Web-Token)
  * based authentication. Holds details about the authentication token. A JWT
  * token is self-contained and includes claims to identify the user, scope, etc.
  * JWT enables stateless authentication.
- * <p>
- * The authentication scheme is `Bearer`.
  *
  * @see <a href="https://tools.ietf.org/html/rfc7523">JWT bearer profile</a>
  * @author Key Bridge
  * @since v0.8.0 created 2020-08-24
  */
-public class JwtSecurityContext implements SecurityContext {
-
-  /**
-   * The authentication scheme used to protect the resource
-   */
-  private final AuthorizationType scheme = AuthorizationType.BEARER;
-  /**
-   * boolean indicating whether this request was made using a secure channel,
-   * such as HTTPS.
-   */
-  private final boolean secure;
-
-  /**
-   * The current authenticated user. The current authenticated user is
-   * identified by the user record UID value or the user's API authorization
-   * key.
-   */
-  private final String userId;
-  /**
-   * The list of scopes associated with the current user;
-   */
-  private final Collection<String> scope;
+public class JwtSecurityContext extends AbstractTokenSecurityContext {
 
   /**
    * The token identifier. Equivalent to a key id.
    */
   private final String jti;
+  /**
+   * 4.1.5. "nbf" (Not Before) Claim The "nbf" (not before) claim identifies the
+   * time before which the JWT MUST NOT be accepted for processing. The
+   * processing of the "nbf" claim requires that the current date/time MUST be
+   * after or equal to the not-before date/time listed in the "nbf" claim.
+   * Implementers MAY provide for some small leeway, usually no more than a few
+   * minutes, to account for clock skew. Its value MUST be a number containing a
+   * NumericDate value. Use of this claim is OPTIONAL.
+   */
   private final ZonedDateTime notBefore;
+  /**
+   * 4.1.4. "exp" (Expiration Time) Claim The "exp" (expiration time) claim
+   * identifies the expiration time on or after which the JWT MUST NOT be
+   * accepted for processing. The processing of the "exp" claim requires that
+   * the current date/time MUST be before the expiration date/time listed in the
+   * "exp" claim. Implementers MAY provide for some small leeway, usually no
+   * more than a few minutes, to account for clock skew. Its value MUST be a
+   * number containing a NumericDate value. Use of this claim is OPTIONAL.
+   */
   private final ZonedDateTime notAfter;
-  private final int refreshCount;
+
+  /**
+   * The maximum number of times the issued token may be refreshed.
+   */
   private final int refreshLimit;
+  /**
+   * The current number of times this token has been refreshed.
+   */
+  private final int refreshCount;
 
   public JwtSecurityContext(boolean secure, String userId, Collection<String> scope, String jti, ZonedDateTime notBefore, ZonedDateTime notAfter, int refreshCount, int refreshLimit) {
-    this.secure = secure;
-    this.userId = userId;
-    this.scope = scope;
+    super(userId, scope, secure);
     this.jti = jti;
     this.notBefore = notBefore;
     this.notAfter = notAfter;
@@ -81,13 +84,9 @@ public class JwtSecurityContext implements SecurityContext {
     this.refreshLimit = refreshLimit;
   }
 
-  //<editor-fold defaultstate="collapsed" desc="Getter and Setter">
+  //<editor-fold defaultstate="collapsed" desc="Getters">
   public AuthorizationType getScheme() {
     return scheme;
-  }
-
-  public String getUserId() {
-    return userId;
   }
 
   public Collection<String> getScope() {
