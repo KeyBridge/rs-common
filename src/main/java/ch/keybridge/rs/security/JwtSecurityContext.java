@@ -42,7 +42,14 @@ import javax.ws.rs.core.SecurityContext;
 public class JwtSecurityContext extends AbstractTokenSecurityContext {
 
   /**
-   * The token identifier. Equivalent to a key id.
+   * 4.1.7. "jti" (JWT ID) Claim The "jti" (JWT ID) claim provides a unique
+   * identifier for the JWT. The identifier value MUST be assigned in a manner
+   * that ensures that there is a negligible probability that the same value
+   * will be accidentally assigned to a different data object; if the
+   * application uses multiple issuers, collisions MUST be prevented among
+   * values produced by different issuers as well. The "jti" claim can be used
+   * to prevent the JWT from being replayed. The "jti" value is a case-
+   * sensitive string. Use of this claim is OPTIONAL.
    */
   private final String jti;
   /**
@@ -75,7 +82,14 @@ public class JwtSecurityContext extends AbstractTokenSecurityContext {
    */
   private final int refreshCount;
 
-  public JwtSecurityContext(boolean secure, String userId, Collection<String> scope, String jti, ZonedDateTime notBefore, ZonedDateTime notAfter, int refreshCount, int refreshLimit) {
+  public JwtSecurityContext(boolean secure,
+                            String userId,
+                            Collection<String> scope,
+                            String jti,
+                            ZonedDateTime notBefore,
+                            ZonedDateTime notAfter,
+                            int refreshCount,
+                            int refreshLimit) {
     super(userId, scope, secure);
     this.jti = jti;
     this.notBefore = notBefore;
@@ -119,6 +133,12 @@ public class JwtSecurityContext extends AbstractTokenSecurityContext {
    * @return TRUE if the authentication token is eligible for refreshment
    */
   public boolean isEligibleForRefreshment() {
+    if (notBefore != null && notBefore.isBefore(ZonedDateTime.now())) {
+      return false;
+    }
+    if (notAfter != null && notAfter.isAfter(ZonedDateTime.now())) {
+      return false;
+    }
     return refreshCount < refreshLimit;
   }
 
