@@ -20,14 +20,13 @@ package ch.keybridge.rs.security;
 
 import java.security.Principal;
 import java.time.ZonedDateTime;
-import java.util.Collection;
 
 /**
  * A JSON Web Token (JWT) security context principal entity. This is used to
  * record user information referenced by a JWT.
  *
  * @author Key Bridge
- * @since v0.8.0 created 2020-09-05
+ * @since v0.9.0 created 2020-09-05
  */
 public class JwtPrincipal implements Principal {
 
@@ -101,15 +100,31 @@ public class JwtPrincipal implements Principal {
   private String jwtId;
 
   /**
-   * The current authenticated user. The current authenticated user is
-   * identified by the user record UID value or the user's API authorization
-   * key.
+   * Default no-arg constructor.
    */
-  private String userId;
+  public JwtPrincipal() {
+  }
+
   /**
-   * The list of scopes associated with the current user;
+   * Fully qualified constructor.
+   *
+   * @param issuer         "iss" (Issuer) Claim
+   * @param subject        "sub" (Subject) Claim
+   * @param audience       "aud" (Audience) Claim
+   * @param expirationTime "exp" (Expiration Time) Claim
+   * @param notBefore      "nbf" (Not Before) Claim
+   * @param issuedAt       "iat" (Issued At) Claim
+   * @param jwtId          "jti" (JWT ID) Claim
    */
-  private Collection<String> scope;
+  public JwtPrincipal(String issuer, String subject, String audience, ZonedDateTime expirationTime, ZonedDateTime notBefore, ZonedDateTime issuedAt, String jwtId) {
+    this.issuer = issuer;
+    this.subject = subject;
+    this.audience = audience;
+    this.expirationTime = expirationTime;
+    this.notBefore = notBefore;
+    this.issuedAt = issuedAt;
+    this.jwtId = jwtId;
+  }
 
   /**
    * {@inheritDoc}
@@ -122,6 +137,7 @@ public class JwtPrincipal implements Principal {
     return jwtId;
   }
 
+  //<editor-fold defaultstate="collapsed" desc="Getter and Setter">
   public String getIssuer() {
     return issuer;
   }
@@ -176,22 +192,6 @@ public class JwtPrincipal implements Principal {
 
   public void setJwtId(String jwtId) {
     this.jwtId = jwtId;
-  }
-
-  public String getUserId() {
-    return userId;
-  }
-
-  public void setUserId(String userId) {
-    this.userId = userId;
-  }
-
-  public Collection<String> getScope() {
-    return scope;
-  }
-
-  public void setScope(Collection<String> scope) {
-    this.scope = scope;
-  }
+  }//</editor-fold>
 
 }
