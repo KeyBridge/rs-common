@@ -44,11 +44,10 @@ public abstract class AbstractTokenSecurityContext implements SecurityContext {
   protected final boolean secure;
 
   /**
-   * The current authenticated user. The current authenticated user is
-   * identified by the user record UID value or the user's API authorization
-   * key.
+   * A Principal object containing the name of the current authenticated user.
    */
-  protected final String userId;
+  private final Principal principal;
+
   /**
    * The list of scopes associated with the current user;
    */
@@ -57,25 +56,25 @@ public abstract class AbstractTokenSecurityContext implements SecurityContext {
   /**
    * Default, fully qualified constructor.
    *
-   * @param userId The API authorization key of the current authenticated user.
-   * @param scope  The list of scopes associated with the current user;
-   * @param secure Whether this request was made using a secure channel, such as
-   *               HTTPS.
+   * @param principal A Principal object containing the name of the current
+   *                  authenticated user.
+   * @param scope     The list of scopes associated with the current user;
+   * @param secure    Whether this request was made using a secure channel, such
+   *                  as HTTPS.
    */
-  public AbstractTokenSecurityContext(String userId, Collection<String> scope, boolean secure) {
-    this.userId = userId;
+  public AbstractTokenSecurityContext(Principal principal, Collection<String> scope, boolean secure) {
+    this.principal = principal;
     this.scope = scope;
     this.secure = secure;
   }
 
   /**
-   * {@inheritDoc} The current authenticated user is identified by the user
-   * record UID value, which may be a user or, more commonly, the user's API
-   * authorization key.
+   * {@inheritDoc} The current authenticated user as identified by the token
+   * instance.
    */
   @Override
   public Principal getUserPrincipal() {
-    return () -> userId;
+    return principal;
   }
 
   /**
