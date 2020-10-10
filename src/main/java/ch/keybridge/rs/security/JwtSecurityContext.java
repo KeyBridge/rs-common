@@ -18,6 +18,7 @@
  */
 package ch.keybridge.rs.security;
 
+import java.security.Principal;
 import java.time.ZonedDateTime;
 import java.util.Collection;
 import java.util.Collections;
@@ -64,8 +65,13 @@ public class JwtSecurityContext extends AbstractTokenSecurityContext {
      * channel, such as HTTPS.
      */
     private boolean secure;
+
     /**
-     * The token owner's group privileges.
+     * A Principal object containing the name of the current authenticated user.
+     */
+    private Principal principal;
+    /**
+     * The token owner's (the current authenticated user) group privileges.
      */
     private Collection<String> scope;  // required
 
@@ -144,6 +150,11 @@ public class JwtSecurityContext extends AbstractTokenSecurityContext {
       return this;
     }
 
+    public Builder withPrincipal(Principal principal) {
+      this.principal = principal;
+      return this;
+    }
+
     public Builder withScope(Collection<String> scope) {
       this.scope = Collections.unmodifiableCollection(scope == null ? new HashSet<>() : scope);
       return this;
@@ -201,6 +212,9 @@ public class JwtSecurityContext extends AbstractTokenSecurityContext {
       }
       if (subject == null) {
         throw new IllegalArgumentException("subject is required");
+      }
+      if (principal == null) {
+        throw new IllegalArgumentException("principal is required");
       }
 
       return new JwtSecurityContext(new JwtPrincipal(issuer, subject, audience, expirationTime, notBefore, issuedAt, jwtId),
