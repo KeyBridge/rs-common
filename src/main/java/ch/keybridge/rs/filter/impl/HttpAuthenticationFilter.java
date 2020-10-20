@@ -80,6 +80,7 @@ import javax.ws.rs.core.SecurityContext;
 public abstract class HttpAuthenticationFilter implements ContainerRequestFilter {
 
   private static final Logger LOG = Logger.getLogger(HttpAuthenticationFilter.class.getName());
+
   /**
    * The Container request filter context for the instant request. Provides
    * request-specific information for the filter, such as request URI, message
@@ -87,7 +88,6 @@ public abstract class HttpAuthenticationFilter implements ContainerRequestFilter
    * allow modification of the exposed request-specific information.
    */
   protected ContainerRequestContext requestContext;
-
   /**
    * The request header authorization type.
    */

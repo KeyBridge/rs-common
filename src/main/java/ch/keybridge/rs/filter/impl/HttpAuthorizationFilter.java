@@ -1,24 +1,19 @@
 package ch.keybridge.rs.filter.impl;
 
-import ch.keybridge.rs.filter.HttpAuthorization;
 import java.io.IOException;
 import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.annotation.Priority;
 import javax.annotation.security.DenyAll;
 import javax.annotation.security.PermitAll;
 import javax.annotation.security.RolesAllowed;
-import javax.enterprise.context.Dependent;
-import javax.ws.rs.Priorities;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.container.ContainerRequestContext;
 import javax.ws.rs.container.ContainerRequestFilter;
 import javax.ws.rs.container.ResourceInfo;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
-import javax.ws.rs.ext.Provider;
 
 /**
  * HTTP role based authorization (AuthZ) filter. Reads and implements the
@@ -36,10 +31,10 @@ import javax.ws.rs.ext.Provider;
  * @author Key Bridge
  * @since v0.8.0 created 2020-08-24
  */
-@Provider
-@Dependent
-@HttpAuthorization
-@Priority(Priorities.AUTHORIZATION)
+//@Provider
+//@Dependent
+//@HttpAuthorization
+//@Priority(Priorities.AUTHORIZATION)
 public class HttpAuthorizationFilter implements ContainerRequestFilter {
 
   private static final Logger LOG = Logger.getLogger(HttpAuthorizationFilter.class.getName());
@@ -101,7 +96,7 @@ public class HttpAuthorizationFilter implements ContainerRequestFilter {
       performAuthorization(rolesAllowed.value(), requestContext);
     }
     /**
-     * @PermitAll on the class
+     * Check for PermitAll on the class
      */
     if (resourceInfo.getResourceClass().isAnnotationPresent(PermitAll.class)) {
       return;  // Do nothing
@@ -110,7 +105,7 @@ public class HttpAuthorizationFilter implements ContainerRequestFilter {
      * Authentication is required for non-annotated methods
      */
     if (!isAuthenticated(requestContext)) {
-      LOG.log(Level.FINE, "Unuthenticated request '{'method={0}'}'", resourceMethod.getName());
+      LOG.log(Level.FINE, "Unuthenticated user '{'method={0}'}'", resourceMethod.getName());
       throw new WebApplicationException(Response.Status.UNAUTHORIZED);
     }
   }
@@ -127,7 +122,7 @@ public class HttpAuthorizationFilter implements ContainerRequestFilter {
      * Basic sanity check before processing.
      */
     if (rolesAllowed.length > 0 && !isAuthenticated(requestContext)) {
-      LOG.log(Level.FINE, "Unuthenticated user request '{'method={0}, rolesAllowed={1}'}'", new Object[]{resourceInfo.getResourceMethod().getName(), Arrays.toString(rolesAllowed)});
+      LOG.log(Level.FINE, "Unuthenticated user '{'method={0}, rolesAllowed={1}'}'", new Object[]{resourceInfo.getResourceMethod().getName(), Arrays.toString(rolesAllowed)});
       throw new WebApplicationException(Response.Status.UNAUTHORIZED);
     }
     /**
@@ -135,7 +130,7 @@ public class HttpAuthorizationFilter implements ContainerRequestFilter {
      */
     for (final String role : rolesAllowed) {
       if (requestContext.getSecurityContext().isUserInRole(role)) {
-        System.out.println("debug MATCH isUserInRole " + role);
+        System.out.println("debug HttpAuthorizationFilter MATCH isUserInRole " + role);
         return;
       }
     }
