@@ -45,6 +45,7 @@ public enum AuthorizationType {
    * @see <a href="https://tools.ietf.org/html/rfc7523">JWT bearer profile</a>
    */
   BEARER,
+
   /**
    * HTTP Digest Access Authentication
    *
