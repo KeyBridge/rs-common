@@ -77,9 +77,9 @@ import javax.ws.rs.core.SecurityContext;
 //@Dependent
 //@HttpAuthorization
 //@Priority(Priorities.AUTHENTICATION) // Security authentication filter/interceptor priority.
-public abstract class HttpAuthenticationFilter implements ContainerRequestFilter {
+public abstract class AbstractHttpAuthenticationFilter implements ContainerRequestFilter {
 
-  private static final Logger LOG = Logger.getLogger(HttpAuthenticationFilter.class.getName());
+  private static final Logger LOG = Logger.getLogger(AbstractHttpAuthenticationFilter.class.getName());
 
   /**
    * The Container request filter context for the instant request. Provides
