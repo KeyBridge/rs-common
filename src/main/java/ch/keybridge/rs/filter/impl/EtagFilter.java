@@ -20,11 +20,12 @@ package ch.keybridge.rs.filter.impl;
 
 import ch.keybridge.rs.filter.Etag;
 import java.io.IOException;
+import java.net.URI;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.time.LocalDate;
 import java.util.Objects;
 import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.annotation.Priority;
 import javax.ws.rs.Priorities;
 import javax.ws.rs.container.ContainerRequestContext;
@@ -52,10 +53,6 @@ import javax.xml.bind.DatatypeConverter;
 @Priority(Priorities.HEADER_DECORATOR) // Header decorator filter/interceptor
 public class EtagFilter extends AbstractContainerFilter implements ContainerResponseFilter {
 
-  private static final Logger LOG = Logger.getLogger(EtagFilter.class.getName());
-
-  private static final String ETAG_HEADER = "ETAG";
-
   /**
    * {@inheritDoc}
    * <p>
@@ -77,26 +74,24 @@ public class EtagFilter extends AbstractContainerFilter implements ContainerResp
     /**
      * If the response placed an ETAG header then use it.
      */
-    if (responseContext.getHeaders().containsKey(ETAG_HEADER)) {
-      etag = new EntityTag(responseContext.getHeaderString(ETAG_HEADER));
-      responseContext.getHeaders().remove(ETAG_HEADER);
+    if (responseContext.getHeaders().containsKey(HttpHeaders.ETAG)) {
+      etag = new EntityTag(responseContext.getHeaderString(HttpHeaders.ETAG));
+      responseContext.getHeaders().remove(HttpHeaders.ETAG);
     } else if (responseContext.getEntity() != null) {
       /**
-       * Calculate the e-tag from the message body content. Try to set a strong
-       * tag as an MD5 hash of the response body.
+       * Calculate the e-tag from the message request URI plus today's date. Try
+       * to set a strong tag as an MD5 hash of the response body.
        */
-      String data = readRawData(responseContext);
+      URI requestUri = requestContext.getUriInfo().getRequestUri();
       /**
        * Try to build a strong EntityTag, but set a weak one if the hashing
        * function fails.
        */
       try {
-        etag = new EntityTag(md5Hash(data));
-      } catch (NoSuchAlgorithmException ex) {
-        /**
-         * Set a WEAK tag on error.
-         */
-        etag = new EntityTag("h-" + Objects.hash(data), true);
+        etag = new EntityTag(md5Hash(requestUri, LocalDate.now()));
+      } catch (NoSuchAlgorithmException noSuchAlgorithmException) {
+        LOG.log(Level.WARNING, "MD5 hash error:  {0}", noSuchAlgorithmException.getMessage());
+        etag = new EntityTag(String.valueOf(Objects.hash(requestUri, LocalDate.now())), true);
       }
     } else {
       /**
@@ -120,9 +115,11 @@ public class EtagFilter extends AbstractContainerFilter implements ContainerResp
    * @throws NoSuchAlgorithmException if the MD5 hash is not supported by the
    *                                  operating system
    */
-  private static String md5Hash(String data) throws NoSuchAlgorithmException {
+  private String md5Hash(Object... data) throws NoSuchAlgorithmException {
     MessageDigest md = MessageDigest.getInstance("MD5");
-    md.update(data.getBytes());
+    for (Object object : data) {
+      md.update(String.valueOf(object).getBytes());
+    }
     byte[] digest = md.digest();
     return DatatypeConverter.printHexBinary(digest).toUpperCase();
   }
@@ -134,15 +131,18 @@ public class EtagFilter extends AbstractContainerFilter implements ContainerResp
    * @param data the text data
    * @return an md5 hash of the text
    */
-  public static String md5(String data) {
+//  private String md5(String data) {
+  private String md5(Object... data) {
     try {
       MessageDigest md = MessageDigest.getInstance("MD5");
-      md.update(data.getBytes());
+      for (Object object : data) {
+        md.update(String.valueOf(object).getBytes());
+      }
       byte[] digest = md.digest();
       return DatatypeConverter.printHexBinary(digest).toUpperCase();
     } catch (NoSuchAlgorithmException noSuchAlgorithmException) {
       LOG.log(Level.WARNING, "MD5 hash error:  {0}", noSuchAlgorithmException.getMessage());
-      return "h-" + Objects.hash(data);
+      return String.valueOf(Objects.hash(data));
 
     }
   }
