@@ -43,7 +43,7 @@ public abstract class AbstractContainerFilter {
    * Get the HTTP request entity body.
    *
    * @param requestContext the request
-   * @return the data
+   * @return the data; a non-null String
    */
   protected String readRawData(ContainerRequestContext requestContext) {
     ByteArrayOutputStream out = new ByteArrayOutputStream();
