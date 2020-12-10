@@ -25,9 +25,14 @@ import java.lang.annotation.Target;
 import javax.ws.rs.NameBinding;
 
 /**
- * Name binding annotation to bind a provider using the @MessageLogging
+ * Name binding annotation to bind a provider using the `@MessageLogging`
  * annotation. Implementations of this filter record, or effect the recording
  * of, HTTP messages to a persistent log.
+ * <p>
+ * There is a `@NameBinding` annotation applied to the filter, the filter will
+ * also be executed at the post-match request extension point, but only in case
+ * the matched resource or sub-resource method is bound to the same name-binding
+ * annotation.
  *
  * @author Key Bridge
  * @since v0.23.0 added 12/13/18
