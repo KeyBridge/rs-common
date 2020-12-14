@@ -276,19 +276,17 @@ public abstract class AbstractRestClient {
    * Helper method to determine if the REST service is available or not. This
    * method tries to retrieve the `application.wadl` file.
    *
-   * @param baseUri The application base uri. This is the REST resource context
-   *                root.
    * @return if the `application.wadl` file can be downloaded
    */
-  protected final boolean isAvailable(URI baseUri) {
+  public final boolean isAvailable() {
     try {
-      buildTrustingClient().target(baseUri)
+      buildTrustingClient().target(new URI(baseURI))
         .path("application.wadl")
         .request()
         .get(String.class);
       return true;
     } catch (Exception e) {
-      LOG.log(Level.WARNING, "{0}/application.wadl is not available.  {1}", new Object[]{baseUri, e.getMessage()});
+      LOG.log(Level.WARNING, "{0}/application.wadl is not available.  {1}", new Object[]{baseURI, e.getMessage()});
       return false;
     }
   }
