@@ -3,7 +3,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>keybridge.lib</groupId>
   <artifactId>rs-filter</artifactId>
-  <version>0.11.0</version>
+  <version>0.12.0</version>
   <packaging>jar</packaging>
 
   <name>lib-rs-filter</name>
@@ -30,6 +30,7 @@
     v0.9.0 - add JSON Web Token principal and security context support
     v0.10.0 - move token principal and security context to openid-jaspic library
     v0.11.0 - fix EtagFilter to assign eTag based on request URI instead of response content; fixed NPE and instability issues
+    v0.12.0 - rewrite abstract rest client to require a base URI in constructor
 
 
 

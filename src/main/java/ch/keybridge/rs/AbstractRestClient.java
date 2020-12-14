@@ -19,7 +19,10 @@
 package ch.keybridge.rs;
 
 import ch.keybridge.rs.filter.impl.ClientLoggingFilter;
+import java.net.URI;
 import java.security.cert.X509Certificate;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.net.ssl.*;
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
@@ -33,6 +36,8 @@ import javax.ws.rs.client.ClientResponseFilter;
  * @since v0.3.0 copied from lib-rest-client
  */
 public abstract class AbstractRestClient {
+
+  private static final Logger LOG = Logger.getLogger(AbstractRestClient.class.getName());
 
   /**
    * Connect timeout interval, in milliseconds. The value MUST be an instance
@@ -75,23 +80,31 @@ public abstract class AbstractRestClient {
    * The Connect timeout interval, in milliseconds. Default is 1,000
    * milliseconds = 1 seconds.
    */
-  private int timoutConnect;
+  protected int timoutConnect;
   /**
    * The Read timeout interval, in milliseconds. Default is 5,000 milliseconds =
    * 5 seconds.
    */
-  private int timoutRead;
+  protected int timoutRead;
 
   /**
    * Enable or disable client logging. Default is enabled.
    */
-  private boolean clientLogging = true;
+  protected boolean clientLogging = true;
+
+  /**
+   * The web service base URI pattern.
+   */
+  protected String baseURI;
 
   /**
    * Default no-arg constructor. Sets the connect timeout to 1 second and read
    * timeout to 5 seconds.
+   *
+   * @param baseURI the base URI
    */
-  public AbstractRestClient() {
+  public AbstractRestClient(String baseURI) {
+    this.baseURI = baseURI;
     this.timoutConnect = TIMEOUT_CONNECT;
     this.timoutRead = TIMEOUT_READ;
   }
@@ -99,10 +112,12 @@ public abstract class AbstractRestClient {
   /**
    * New constructor.
    *
+   * @param baseURI       the base URI
    * @param timoutConnect Connect timeout interval, in milliseconds.
    * @param timoutRead    Read timeout interval, in milliseconds.
    */
-  public AbstractRestClient(int timoutConnect, int timoutRead) {
+  public AbstractRestClient(String baseURI, int timoutConnect, int timoutRead) {
+    this.baseURI = baseURI;
     this.timoutConnect = timoutConnect;
     this.timoutRead = timoutRead;
   }
@@ -254,6 +269,27 @@ public abstract class AbstractRestClient {
     @Override
     public X509Certificate[] getAcceptedIssuers() {
       return new X509Certificate[]{};
+    }
+  }
+
+  /**
+   * Helper method to determine if the REST service is available or not. This
+   * method tries to retrieve the `application.wadl` file.
+   *
+   * @param baseUri The application base uri. This is the REST resource context
+   *                root.
+   * @return if the `application.wadl` file can be downloaded
+   */
+  protected final boolean isAvailable(URI baseUri) {
+    try {
+      buildTrustingClient().target(baseUri)
+        .path("application.wadl")
+        .request()
+        .get(String.class);
+      return true;
+    } catch (Exception e) {
+      LOG.log(Level.WARNING, "{0}/application.wadl is not available.  {1}", new Object[]{baseUri, e.getMessage()});
+      return false;
     }
   }
 
