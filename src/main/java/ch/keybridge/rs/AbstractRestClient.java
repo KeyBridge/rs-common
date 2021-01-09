@@ -132,6 +132,17 @@ public abstract class AbstractRestClient {
   }
 
   /**
+   * Enable or disable client logging. Default is enabled.
+   *
+   * @param clientLogging TRUE to enable, false to disable.
+   * @return the current client instance
+   */
+  public AbstractRestClient withClientLogging(boolean clientLogging) {
+    this.clientLogging = clientLogging;
+    return this;
+  }
+
+  /**
    * Set the Connect timeout interval, in milliseconds. Default is 1,000
    * milliseconds = 1 seconds.
    *
@@ -142,6 +153,18 @@ public abstract class AbstractRestClient {
   }
 
   /**
+   * Set the Connect timeout interval, in milliseconds. Default is 1,000
+   * milliseconds = 1 seconds.
+   *
+   * @param timoutConnect The Connect timeout interval
+   * @return the current client instance
+   */
+  public AbstractRestClient withTimoutConnect(int timoutConnect) {
+    this.timoutConnect = timoutConnect;
+    return this;
+  }
+
+  /**
    * Set the Read timeout interval, in milliseconds. Default is 5,000
    * milliseconds = 5 seconds.
    *
@@ -149,6 +172,18 @@ public abstract class AbstractRestClient {
    */
   public void setTimoutRead(int timoutRead) {
     this.timoutRead = timoutRead;
+  }
+
+  /**
+   * Set the Read timeout interval, in milliseconds. Default is 5,000
+   * milliseconds = 5 seconds.
+   *
+   * @param timoutRead The Read timeout interval
+   * @return the current client instance
+   */
+  public AbstractRestClient withTimoutRead(int timoutRead) {
+    this.timoutRead = timoutRead;
+    return this;
   }
 
   /**
