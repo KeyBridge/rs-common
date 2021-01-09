@@ -2,11 +2,11 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
   <groupId>keybridge.lib</groupId>
-  <artifactId>rs-filter</artifactId>
-  <version>0.12.0</version>
+  <artifactId>rs-common</artifactId>
+  <version>1.0.0</version>
   <packaging>jar</packaging>
 
-  <name>lib-rs-filter</name>
+  <name>lib-rs-common</name>
   <description>RESTful web service client and filter implementations.
 
     This library provides REST utilities including
@@ -32,6 +32,7 @@
     v0.11.0 - fix EtagFilter to assign eTag based on request URI instead of response content; fixed NPE and instability issues
     v0.12.0 - rewrite abstract rest client to require a base URI in constructor
 
+    v1.0.0 - first release 20201-01-09, rename to rs-common
 
 
 
@@ -48,7 +49,8 @@
     <maven.compiler.target>1.8</maven.compiler.target>
     <!--jersey client version-->
     <!-- note: payara-4.1.2.181 ships with jersey 2.25.1-->
-    <jersey.version>2.25.1</jersey.version>
+    <!-- note: glassfish 5.1.0 ships with jersey 2.28-->
+    <!--<jersey.version>2.28</jersey.version>-->
   </properties>
 
   <dependencies>
@@ -59,14 +61,7 @@
       <type>jar</type>
       <scope>provided</scope>
     </dependency>
-    <!--for the rest client constants-->
-    <!--    <dependency>
-      <groupId>org.glassfish.jersey.core</groupId>
-      <artifactId>jersey-client</artifactId>
-      <version>${jersey.version}</version>
-      <type>jar</type>
-      <scope>provided</scope>
-    </dependency>-->
+
   </dependencies>
 
   <distributionManagement>
