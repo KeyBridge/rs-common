@@ -21,7 +21,6 @@ package ch.keybridge.rs.filter.impl;
 import ch.keybridge.rs.filter.MessageAddressing;
 import java.io.IOException;
 import java.util.UUID;
-import java.util.logging.Logger;
 import javax.annotation.Priority;
 import javax.ws.rs.Priorities;
 import javax.ws.rs.container.ContainerRequestContext;
@@ -51,7 +50,7 @@ import javax.ws.rs.ext.Provider;
  * @see <a href="https://www.w3.org/TR/ws-addr-core/">Web Services
  * Addressing</a>
  * @see
- * <a href="https://www.w3.org/TR/ws-addr-core/#msgaddrpropsinfoset/">Message
+ * <a href="https://www.w3.org/TR/ws-addr-core/#msgaddrpropsinfoset">Message
  * Addressing Properties</a>
  * @since v0.25.0 created 12/18/18
  */
@@ -59,8 +58,6 @@ import javax.ws.rs.ext.Provider;
 @MessageAddressing
 @Priority(Priorities.HEADER_DECORATOR) // Header decorator filter/interceptor
 public class MessageAddressingFilter implements ContainerRequestFilter, ContainerResponseFilter {
-
-  private static final Logger LOG = Logger.getLogger(MessageAddressingFilter.class.getName());
 
   /**
    * An absolute IRI that uniquely identifies the message. When present, it is
