@@ -48,7 +48,7 @@ public abstract class AbstractRestClient {
    * <p>
    * CONNECT_TIMEOUT = "jersey.config.client.connectTimeout";
    */
-  public static final String READ_TIMEOUT = "jersey.config.client.readTimeout";
+  protected static final String READ_TIMEOUT = "jersey.config.client.readTimeout";
   /**
    * Read timeout interval, in milliseconds. The value MUST be an instance
    * convertible to Integer. A value of zero (0) is equivalent to an interval of
@@ -58,7 +58,7 @@ public abstract class AbstractRestClient {
    * <p>
    * READ_TIMEOUT = "jersey.config.client.readTimeout";
    */
-  public static final String CONNECT_TIMEOUT = "jersey.config.client.connectTimeout";
+  protected static final String CONNECT_TIMEOUT = "jersey.config.client.connectTimeout";
   /**
    * 1,000 milliseconds = 1 seconds.
    * <p>
@@ -66,7 +66,7 @@ public abstract class AbstractRestClient {
    * convertible to Integer. A value of zero (0) is equivalent to an interval of
    * infinity. The default value is infinity (0).
    */
-  private static final int TIMEOUT_CONNECT = 1000;
+  protected static final int TIMEOUT_CONNECT = 1000;
   /**
    * 5,000 milliseconds = 5 seconds.
    * <p>
@@ -74,7 +74,7 @@ public abstract class AbstractRestClient {
    * convertible to Integer. A value of zero (0) is equivalent to an interval of
    * infinity. The default value is infinity (0).
    */
-  private static final int TIMEOUT_READ = 5000;
+  protected static final int TIMEOUT_READ = 5000;
 
   /**
    * The Connect timeout interval, in milliseconds. Default is 1,000
