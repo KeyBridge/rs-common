@@ -1,4 +1,15 @@
-# lib-rs-filter
+# lib-rs-common
+
+**RESTful web service client and filter implementations.**
+
+This library provides REST utilities including
+  - an abstract rest client
+  - filter interfaces that may be applied to any JAX-RS (Jersey) REST service.
+
+Filters are applied by annotation. Includes reference implementations of the following RESTful protocols and strategies:
+
+ * MessageAddressing - REST implementation of SOAP Web Services Addressing 1.0 (WS-Addressing) protocol
+
 
 **RESTful web service filter implementations.**
 
